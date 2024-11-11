@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
-const { sendRegisterEmail } = require("../services/email.service");
+const { sendRegisterEmail, sendResetEmail} = require("../services/email.service");
 
 const register = async (req, res) => {
   try {
@@ -50,7 +50,7 @@ const register = async (req, res) => {
 
     // Send email to user
     const subject = "Registration successful";
-    // await sendRegisterEmail(email, subject, name);
+    await sendRegisterEmail(email, subject, name);
 
     const user = new User({ email, password, name, dob, age, phoneNumber });
     await user.save();
@@ -102,7 +102,7 @@ const login = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await user.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       throw new Error("User not found");
@@ -121,7 +121,7 @@ const resetPassword = async (req, res) => {
     );
 
     const subject = "Password reset link";
-    // await sendResetEmail(email, subject, token);
+    await sendResetEmail(email, subject, token);
 
     res.status(200).json({ message: "Password reset link sent to your email" });
   } catch (error) {

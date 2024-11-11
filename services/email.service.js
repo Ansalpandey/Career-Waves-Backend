@@ -1,4 +1,5 @@
 const nodeMailer = require("nodemailer");
+const auth = require("../middleware/auth.middleware");
 
 const sendRegisterEmail = async (email, subject, name) => {
   const transporter = nodeMailer.createTransport({
@@ -55,8 +56,48 @@ const sendRegisterEmail = async (email, subject, name) => {
   } catch (error) {
     throw new Error(error.message);
   }
-
   return;
 };
 
-module.exports = { sendRegisterEmail };
+const sendResetEmail = async (email, subject, token) => {
+  const transporter = nodeMailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    secure: true,
+    auth: {
+      user: process.env.SENDGRID_USERNAME,
+      pass: process.env.SEND_GRID_API_KEY,
+    },
+  });
+
+  const mailOptions = {
+    from: `Career Waves Institute <${process.env.EMAIL}>`,
+    to: email,
+    subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="background-color: #14131c; padding: 20px; text-align: center; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+          <img src="https://res.cloudinary.com/ansalpandey/image/upload/v1730900021/zvmxuyfdvddc8tlvo6z8.png" alt="Career Waves Institute Logo" style="width: 80px; height: auto;">
+        </div>
+        <div style="padding: 20px;">
+          <h1 style="color: #14131c; text-align: center;">Reset Your Password</h1>
+          <p>Dear Student,</p>
+          <p>You recently requested to reset your password for your Career Waves Institute account. Click the button below to reset it.</p>
+  
+          <p style="text-align: center;">
+            <a href="http://localhost:5173/ResetPassword/${token}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #14131c; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+              Reset Password
+            </a>
+          </p>
+  
+          <p>If you did not request a password reset, please ignore this email or <a href="mailto:support@careerwaveseducation.in
+          style="color: #14131c;">contact us</a> if you have questions.</p>`,
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+  return;
+};
+
+module.exports = { sendRegisterEmail, sendResetEmail };

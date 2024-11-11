@@ -12,14 +12,14 @@ const { rateLimit } = require("express-rate-limit");
 // Enable CORS
 app.use(
   cors({
-    origin: "https://careerwaveseducation.in", // Frontend URL
+    origin: ["https://careerwaveseducation.in", "http://localhost:5173"], // Frontend URL
     credentials: true, // Allow credentials (cookies)
   })
 );
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 15, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	limit: 50, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 })
@@ -37,7 +37,9 @@ const startServer = async () => {
 
   // Import routes
   const userRoutes = require("./routes/user.routes");
+  const universityRoutes = require("./routes/university.routes");
   app.use("/api/v1/users", userRoutes);
+  app.use("/api/v1/universities", universityRoutes);
 
   // Start the server
   const PORT = process.env.PORT || 3000;
