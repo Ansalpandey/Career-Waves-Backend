@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
-const { sendRegisterEmail, sendResetEmail} = require("../services/email.service");
+const { sendRegisterEmail} = require("../services/email.service");
 
 const register = async (req, res) => {
   try {
@@ -102,28 +102,47 @@ const login = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    const newPassword = req.body.password;
     const user = await User.findOne({ email });
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const token = jwt.sign(
-      {
-        email: user.email,
-        id: user._id,
-        name: user.name,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30d",
-      }
-    );
+    // Validate password strength
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters long" });
+    }
 
-    const subject = "Password reset link";
-    await sendResetEmail(email, subject, token);
+    if (!/[A-Z]/.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must contain at least one uppercase letter",
+      });
+    }
 
-    res.status(200).json({ message: "Password reset link sent to your email" });
+    if (!/[a-z]/.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must contain at least one lowercase letter",
+      });
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      return res
+        .status(400)
+        .json({ message: "Password must contain at least one digit" });
+    }
+
+    if (!/[!@#$%^&*]/.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must contain at least one special character",
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({ message: "Password reset successfull" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

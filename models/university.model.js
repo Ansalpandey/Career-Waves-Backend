@@ -34,6 +34,7 @@ const universitySchema = new mongoose.Schema({
   timestamps: true,
 });
 
+universitySchema.index({ name: 'text', location: 'text', country: 'text' });
 const University = mongoose.model('University', universitySchema);
 
 module.exports = University;

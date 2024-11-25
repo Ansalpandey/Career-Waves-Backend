@@ -17,14 +17,14 @@ app.use(
   })
 );
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 50, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-})
+// const limiter = rateLimit({
+// 	windowMs: 15 * 60 * 1000, // 15 minutes
+// 	limit: 50, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+// 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+// 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+// })
 
-app.use(limiter);
+// app.use(limiter);
 
 // Middleware
 app.use(morgan("dev"));
@@ -38,8 +38,10 @@ const startServer = async () => {
   // Import routes
   const userRoutes = require("./routes/user.routes");
   const universityRoutes = require("./routes/university.routes");
+  const contactUsRoutes = require("./routes/contactus.routes");
   app.use("/api/v1/users", userRoutes);
   app.use("/api/v1/universities", universityRoutes);
+  app.use("/api/v1/contactus", contactUsRoutes);
 
   // Start the server
   const PORT = process.env.PORT || 3000;
